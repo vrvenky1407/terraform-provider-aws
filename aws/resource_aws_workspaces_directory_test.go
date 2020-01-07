@@ -7,31 +7,18 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/workspaces"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-// These tests need to be serialized, because they all rely on the IAM Role `workspaces_DefaultRole`.
-func TestAccAwsWorkspacesDirectory(t *testing.T) {
-	testCases := map[string]func(t *testing.T){
-		"basic":     testAccAwsWorkspacesDirectory_basic,
-		"subnetIds": testAccAwsWorkspacesDirectory_subnetIds,
-	}
-	for name, tc := range testCases {
-		tc := tc
-		t.Run(name, func(t *testing.T) {
-			tc(t)
-		})
-	}
-}
-
-func testAccAwsWorkspacesDirectory_basic(t *testing.T) {
+func TestAccAwsWorkspacesDirectory_basic(t *testing.T) {
 	booster := acctest.RandString(8)
 	resourceName := "aws_workspaces_directory.main"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t); testAccPreCheckAwsWorkSpacesDirectory(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAwsWorkspacesDirectoryDestroy,
 		Steps: []resource.TestStep{
@@ -89,12 +76,12 @@ func testAccAwsWorkspacesDirectory_basic(t *testing.T) {
 	})
 }
 
-func testAccAwsWorkspacesDirectory_subnetIds(t *testing.T) {
+func TestAccAwsWorkspacesDirectory_subnetIds(t *testing.T) {
 	booster := acctest.RandString(8)
 	resourceName := "aws_workspaces_directory.main"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t); testAccPreCheckAwsWorkSpacesDirectory(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAwsWorkspacesDirectoryDestroy,
 		Steps: []resource.TestStep{
@@ -112,6 +99,32 @@ func testAccAwsWorkspacesDirectory_subnetIds(t *testing.T) {
 			},
 		},
 	})
+}
+
+// Ensure that the IAM Role `workspaces_DefaultRole` exists
+func testAccPreCheckAwsWorkSpacesDirectory(t *testing.T) {
+	conn := testAccProvider.Meta().(*AWSClient).iamconn
+
+	input := &iam.GetRoleInput{
+		RoleName: aws.String("workspaces_DefaultRole"),
+	}
+	_, err := conn.GetRole(input)
+
+	if isAWSErr(err, iam.ErrCodeNoSuchEntityException, "") {
+		// Create Policy
+
+		// Create Role
+
+		// Attach Policy to Role
+
+		// Attach pre-defined policy to Role
+	}
+	if testAccPreCheckSkipError(err) {
+		t.Skipf("skipping acceptance testing: %s", err)
+	}
+	if err != nil {
+		t.Fatalf("unexpected PreCheck error: %s", err)
+	}
 }
 
 func testAccCheckAwsWorkspacesDirectoryDestroy(s *terraform.State) error {
@@ -303,31 +316,31 @@ resource "aws_directory_service_directory" "main" {
   }
 }
 
-data "aws_iam_policy_document" "workspaces" {
-  statement {
-    actions = ["sts:AssumeRole"]
+// data "aws_iam_policy_document" "workspaces" {
+//   statement {
+//     actions = ["sts:AssumeRole"]
 
-    principals {
-      type        = "Service"
-      identifiers = ["workspaces.amazonaws.com"]
-    }
-  }
-}
+//     principals {
+//       type        = "Service"
+//       identifiers = ["workspaces.amazonaws.com"]
+//     }
+//   }
+// }
 
-resource "aws_iam_role" "workspaces-default" {
-  name               = "workspaces_DefaultRole"
-  assume_role_policy = data.aws_iam_policy_document.workspaces.json
-}
+// resource "aws_iam_role" "workspaces-default" {
+//   name               = "workspaces_DefaultRole"
+//   assume_role_policy = data.aws_iam_policy_document.workspaces.json
+// }
 
-resource "aws_iam_role_policy_attachment" "workspaces-default-service-access" {
-  role       = aws_iam_role.workspaces-default.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonWorkSpacesServiceAccess"
-}
+// resource "aws_iam_role_policy_attachment" "workspaces-default-service-access" {
+//   role       = aws_iam_role.workspaces-default.name
+//   policy_arn = "arn:aws:iam::aws:policy/AmazonWorkSpacesServiceAccess"
+// }
 
-resource "aws_iam_role_policy_attachment" "workspaces-default-self-service-access" {
-  role       = aws_iam_role.workspaces-default.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonWorkSpacesSelfServiceAccess"
-}
+// resource "aws_iam_role_policy_attachment" "workspaces-default-self-service-access" {
+//   role       = aws_iam_role.workspaces-default.name
+//   policy_arn = "arn:aws:iam::aws:policy/AmazonWorkSpacesSelfServiceAccess"
+// }
 `, booster, booster, booster)
 }
 
