@@ -3,9 +3,9 @@ package resource
 import (
 	"testing"
 
-	tftest "github.com/apparentlymart/terraform-plugin-test"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	tftest "github.com/hashicorp/terraform-plugin-test"
 )
 
 func testStepNewConfig(t *testing.T, c TestCase, wd *tftest.WorkingDir, step TestStep) error {

@@ -3,8 +3,8 @@ package acctest
 import (
 	"os"
 
-	tftest "github.com/apparentlymart/terraform-plugin-test"
 	"github.com/hashicorp/terraform-plugin-sdk/plugin"
+	tftest "github.com/hashicorp/terraform-plugin-test"
 )
 
 var TestHelper *tftest.Helper

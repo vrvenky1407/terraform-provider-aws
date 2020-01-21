@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	tftest "github.com/apparentlymart/terraform-plugin-test"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/terraform-plugin-sdk/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/internal/addrs"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	tftest "github.com/hashicorp/terraform-plugin-test"
 )
 
 func testStepNewImportState(t *testing.T, c TestCase, wd *tftest.WorkingDir, step TestStep, cfg string) error {
