@@ -2,14 +2,12 @@ provider "aws" {
   region = "us-west-2"
 }
 
-resource "aws_s3_bucket" "example" {
-  bucket = "my-test-s3-terraform-bucket-13032020"
-  acl = "private"
-  versioning {
-    enabled = true
-  }
+resource "aws_s3_bucket" "aws-s3" {
+  bucket = "my-tf-test-bucket-13032020"
+  acl    = "private"
 
   tags = {
-    "Name" = "my-test-s3-terraform-bucket-13032020"
-    }
+    Name        = "my-tf-test-bucket-13032020"
+    Environment = "Dev"
   }
+}
