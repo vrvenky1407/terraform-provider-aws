@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "example" {
     enabled = true
   }
 
-  tags {
+  tags = {
     Name = "my-test-s3-terraform-bucket-13032020"
-  }
+    }
   }
